@@ -1,0 +1,7 @@
+images/
+examples/
+out/
+.vscode/
+__pycache__/
+*.py[cod]
+main.py
