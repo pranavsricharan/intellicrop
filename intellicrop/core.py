@@ -20,8 +20,8 @@ def resize(img, size_x, size_y=None):
         scaling_factor = min(scaling_factor_x, scaling_factor_y)
 
         return cv2.resize(img, None, fx=scaling_factor,
-                        fy=scaling_factor,
-                        interpolation=cv2.INTER_AREA)
+                          fy=scaling_factor,
+                          interpolation=cv2.INTER_AREA)
     return img
 
 
@@ -74,7 +74,7 @@ def get_square_bounds(img, pt1, pt2):
         x2 = x2 + right_inc
     else:
         flag = False
-        
+
         # Decrease boundary if it's greater than width
         while w < x2 - x1:
             if flag:
@@ -89,7 +89,7 @@ def get_square_bounds(img, pt1, pt2):
             else:
                 y1 += 1
             flag = not flag
-        
+
         # Increase boundary if it's lesser than width
         while w > x2 - x1:
             if flag:
@@ -121,19 +121,29 @@ def get_square_bounds(img, pt1, pt2):
     return (x1, y1), (x2, y2)
 
 
-def crop(img, face):
+def crop(img, face, spacing):
     img_h, img_w = img.shape[:2]
     (x1, y1), (x2, y2), w, h = face['pt1'], face['pt2'], face['w'], face['h']
 
     pixels_right = img_w - x2
     pixels_bottom = img_h - y2
 
-    # Increase top bounds by 75%, or top of image and other sides by 50% each or edge of image
-    x1 = 0 if x1 < w // 2 else x1 - (w // 2)
-    y1 = 0 if y1 < (h * 3) // 2 else y1 - ((h * 3) // 4)
+    # Capture the region around face bounds
+    if spacing == 'l':
+        inc = 1.15
+        top_inc = 1.45
+    elif spacing == 'm':
+        inc = 0.85
+        top_inc = 1.1
+    else:
+        inc = 0.5
+        top_inc = 0.75
 
-    x2 = img_w if w // 2 > img_w - x2 else x2 + (w // 2)
-    y2 = img_h if h // 2 > img_h - y2 else y2 + (h // 2)
+    x1 = 0 if x1 < w * inc else x1 - int(w * inc)
+    y1 = 0 if y1 < h * top_inc else y1 - int(h * top_inc)
+
+    x2 = img_w if w * inc > img_w - x2 else x2 + int(w * inc)
+    y2 = img_h if h * inc > img_h - y2 else y2 + int(h * inc)
 
     (x1, y1), (x2, y2) = get_square_bounds(img, (x1, y1), (x2, y2))
     img = img[y1:y2, x1: x2]
@@ -150,7 +160,7 @@ def center_crop(img):
         x1 = diff // 2
         x2 = w - diff // 2
         y1, y2 = 0, h
-    elif h > w:
+    else:
         diff = h - w
         y1 = diff // 2
         y2 = h - diff // 2
@@ -162,7 +172,7 @@ def center_crop(img):
     return bounds, img
 
 
-def intellicrop(img, size=None):
+def intellicrop(img, size=None, spacing='m'):
     # Resize image and find relative face position for improved performance
     resized_img = resize(img, 1000)
 
@@ -187,7 +197,7 @@ def intellicrop(img, size=None):
         crop_function = crop
         face_bounds = relative_to_absolute(
             img, (rel_x1, rel_y1), (rel_x2, rel_y2))
-        args = (img, face_bounds)
+        args = (img, face_bounds, spacing)
         found = True
 
     else:

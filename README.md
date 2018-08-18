@@ -8,7 +8,7 @@ Intellicrop uses OpenCV and supports all image types supported by it.
 ### Examples
 ![Example 1](https://i.imgur.com/AtItPRf.png "Example 1")
 ![Example 2](https://i.imgur.com/fQipZol.png "Example 2")
-![Example 3](https://i.imgur.com/6UdN3oH.png "Example 3")
+![Spacing](https://i.imgur.com/lY3lhR5.jpg "Example 3")
 *Image credits:* [Brooke Cagle](https://unsplash.com/@brookecagle)
 
 ### Requirements
@@ -21,8 +21,8 @@ Intellicrop uses OpenCV and supports all image types supported by it.
 - Add intellicrop to your path
 
 ### Available functions
-#### intellicrop(img [,size])
-Takes an OpenCV image and an optional size (full size image will be returned if not specified) and does cropping
+#### intellicrop(img [,size [,spacing='m']])
+Takes an OpenCV image and an optional size (full size image will be returned if not specified) and does cropping. Control the spacing around the face with spacing parameter. Spacing takes a `str` as argument. Acceptable values are 's', 'm', 'l' for small, medium and large.
 
 **Return**
 A dict containing:
@@ -51,7 +51,7 @@ import cv2
 from intellicrop import intellicrop, resize
 
 img = cv2.imread('test.jpg')
-cropped = intellicrop(img)
+cropped = intellicrop(img, spacing='l')
 cropped_300 = resize(cropped['img'], 300)
 
 cv2.imwrite('full.jpg', cropped['img'])
