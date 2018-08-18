@@ -55,7 +55,6 @@ def get_square_bounds(img, pt1, pt2):
 
     if w > h:
         diff = w - h
-        print(w, h, 0, diff)
         if diff % 2 == 0:
             top_inc = bottom_inc = diff // 2
         else:
@@ -66,7 +65,6 @@ def get_square_bounds(img, pt1, pt2):
 
     elif h > w:
         diff = h - w
-        print(w, h, diff, 0)
         if diff % 2 == 0:
             left_inc = right_inc = diff // 2
         else:
@@ -75,8 +73,8 @@ def get_square_bounds(img, pt1, pt2):
         x1 -= left_inc
         x2 = x2 + right_inc
     else:
-        print(w, h, 0, 0, (x1, x2), (y1, y2))
         flag = False
+        
         # Decrease boundary if it's greater than width
         while w < x2 - x1:
             if flag:
