@@ -14,13 +14,15 @@ def get_face_bounds(img):
 def resize(img, size_x, size_y=None):
     size_y = size_y or size_x
     h, w = img.shape[:2]
-    scaling_factor_x = size_x/float(w)
-    scaling_factor_y = size_y/float(h)
-    scaling_factor = min(scaling_factor_x, scaling_factor_y)
+    if size_y < h or size_x < w:
+        scaling_factor_x = size_x/float(w)
+        scaling_factor_y = size_y/float(h)
+        scaling_factor = min(scaling_factor_x, scaling_factor_y)
 
-    return cv2.resize(img, None, fx=scaling_factor,
-                      fy=scaling_factor,
-                      interpolation=cv2.INTER_AREA)
+        return cv2.resize(img, None, fx=scaling_factor,
+                        fy=scaling_factor,
+                        interpolation=cv2.INTER_AREA)
+    return img
 
 
 def get_relative_bounds(img, bounds):
@@ -53,25 +55,29 @@ def get_square_bounds(img, pt1, pt2):
 
     if w > h:
         diff = w - h
+        print(w, h, 0, diff)
         if diff % 2 == 0:
             top_inc = bottom_inc = diff // 2
         else:
             top_inc = diff // 2
             bottom_inc = diff - top_inc
         y1 -= top_inc
-        y2 = y1 + h + bottom_inc
+        y2 = y2 + bottom_inc
 
     elif h > w:
         diff = h - w
+        print(w, h, diff, 0)
         if diff % 2 == 0:
             left_inc = right_inc = diff // 2
         else:
             left_inc = diff // 2
             right_inc = diff - left_inc
         x1 -= left_inc
-        x2 = x1 + w + right_inc
+        x2 = x2 + right_inc
     else:
+        print(w, h, 0, 0, (x1, x2), (y1, y2))
         flag = False
+        # Decrease boundary if it's greater than width
         while w < x2 - x1:
             if flag:
                 x2 -= 1
@@ -84,6 +90,21 @@ def get_square_bounds(img, pt1, pt2):
                 y2 -= 1
             else:
                 y1 += 1
+            flag = not flag
+        
+        # Increase boundary if it's lesser than width
+        while w > x2 - x1:
+            if flag:
+                x2 += 1
+            else:
+                x1 -= 1
+            flag = not flag
+
+        while h > y2 - y1:
+            if flag:
+                y2 += 1
+            else:
+                y1 -= 1
             flag = not flag
 
     # Correct out of bounds
